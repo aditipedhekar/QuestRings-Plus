@@ -4319,6 +4319,13 @@
       btn.disabled = true;
 
       setTimeout(() => {
+        try {
+          localStorage.removeItem('questrings_state_v1');
+          localStorage.removeItem('questrings_theme');
+          localStorage.removeItem('questrings_viewport_mode');
+        } catch (err) {
+          console.warn('Could not clear localStorage on account purge:', err);
+        }
         appState.user = { email: '', displayName: '', avatarColor: '#635BFF' };
         appState.feedEvents = [];
         closeDeleteAccountModal();
@@ -4327,10 +4334,25 @@
       }, 1400);
     }
 
-    // Initialize Theme, Viewport Mode, and Entry Screen
+    // Load persisted state from localStorage before DOM rendering
+    loadAppState();
+
+    // Initialize Theme, Viewport Mode, UI Controls, and Entry Screen
     initTheme();
     initViewportMode();
-    navTo('home');
+
+    // Sync Haptics toggle checkbox if element exists
+    const hapticCheckbox = document.getElementById('toggleHapticCheckbox');
+    if (hapticCheckbox) {
+      hapticCheckbox.checked = appState.enableHaptics;
+    }
+
+    // Restore saved screen or fallback to 'home'
+    const initialScreen = (appState.currentScreen && appState.currentScreen !== 'splash') ? appState.currentScreen : 'home';
+    navTo(initialScreen);
+
+    // Save state on page unload / refresh as safety fallback
+    window.addEventListener('beforeunload', saveAppState);
   </script>
 </body>
 </html>
