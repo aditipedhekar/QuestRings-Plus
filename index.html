@@ -271,12 +271,19 @@
         flex-direction: column !important;
         overflow: hidden !important;
         position: relative !important;
+        width: 100% !important;
       }
       body.mobile-preview-active header {
         padding-left: 1rem !important;
         padding-right: 1rem !important;
+        height: 3.5rem !important;
       }
       body.mobile-preview-active .hidden.md\:flex {
+        display: none !important;
+      }
+      body.mobile-preview-active header .desktop-header-stats,
+      body.mobile-preview-active header .hidden.sm\:flex,
+      body.mobile-preview-active header .sm\:flex {
         display: none !important;
       }
       body.mobile-preview-active .md\:hidden {
@@ -285,7 +292,10 @@
       body.mobile-preview-active main {
         flex: 1 1 0% !important;
         overflow-y: auto !important;
-        padding-bottom: 74px !important;
+        padding: 1rem !important;
+        padding-bottom: 80px !important;
+        max-width: 100% !important;
+        width: 100% !important;
       }
       body.mobile-preview-active #bottomBar {
         display: flex !important;
@@ -306,6 +316,68 @@
       }
       body.mobile-preview-active #mobilePreviewFloatingPill {
         display: flex !important;
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* STRICT MOBILE VIEWPORT ENFORCEMENT INSIDE SIMULATED CHASSIS       */
+      /* Prevents desktop Tailwind rules (md:*, lg:*) from triggering      */
+      /* multi-column layouts inside the 390px mobile chassis on desktop   */
+      /* ------------------------------------------------------------------ */
+      body.mobile-preview-active #appShellRoot .lg\:grid-cols-12,
+      body.mobile-preview-active #appShellRoot .md\:grid-cols-2,
+      body.mobile-preview-active #appShellRoot .md\:grid-cols-3,
+      body.mobile-preview-active #appShellRoot .lg\:grid-cols-3 {
+        display: flex !important;
+        flex-direction: column !important;
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+        width: 100% !important;
+      }
+
+      body.mobile-preview-active #appShellRoot .lg\:col-span-12,
+      body.mobile-preview-active #appShellRoot .lg\:col-span-8,
+      body.mobile-preview-active #appShellRoot .lg\:col-span-7,
+      body.mobile-preview-active #appShellRoot .lg\:col-span-5,
+      body.mobile-preview-active #appShellRoot .lg\:col-span-4,
+      body.mobile-preview-active #appShellRoot .col-span-2 {
+        grid-column: span 1 / span 1 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+
+      /* Single-column Habits list with clean card gaps */
+      body.mobile-preview-active #habitsListContainer {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+        width: 100% !important;
+      }
+      body.mobile-preview-active #habitsListContainer > div {
+        width: 100% !important;
+      }
+
+      /* Single-column Chambers list */
+      body.mobile-preview-active #roomsContainer {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 1rem !important;
+        width: 100% !important;
+      }
+
+      /* Stack section header titles and buttons vertically */
+      body.mobile-preview-active #appShellRoot .sm\:flex-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.75rem !important;
+      }
+
+      /* Legend buttons padding and sizing in simulated mobile */
+      body.mobile-preview-active #appShellRoot #legendBtnVitality,
+      body.mobile-preview-active #appShellRoot #legendBtnIntellect,
+      body.mobile-preview-active #appShellRoot #legendBtnDiscipline {
+        padding: 0.5rem 0.25rem !important;
+        min-width: 0 !important;
+        overflow: hidden !important;
       }
     }
   </style>
@@ -447,7 +519,7 @@
         <!-- Right Action Controls -->
         <div class="flex items-center gap-2.5">
           <!-- Streak & XP Badges -->
-          <div class="hidden sm:flex items-center gap-2">
+          <div class="hidden sm:flex items-center gap-2 desktop-header-stats">
             <div class="px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 text-xs font-mono font-medium flex items-center gap-1.5">
               <svg class="w-3.5 h-3.5 text-amber-500 inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg>
               <span id="topStreakBadge">12 Days</span>
@@ -607,19 +679,19 @@
         <div id="screen-home" class="flex flex-col gap-6">
 
           <!-- Welcome Banner & Quick Summary -->
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-stripe-border dark:border-stripe-border-dark">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 pb-2 border-b border-stripe-border dark:border-stripe-border-dark">
             <div>
               <h1 class="text-2xl font-bold text-slate-900 dark:text-white font-heading tracking-tight">Today's Habit Rings</h1>
               <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Stay consistent across Vitality, Intellect, and Discipline routines.</p>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <button onclick="openAddHabitModal()" class="py-2 px-3.5 rounded-lg btn-stripe-primary text-xs flex items-center gap-1.5 shadow-stripe-sm">
                 <span>+</span>
                 <span>Add Daily Habit</span>
               </button>
               <button onclick="simulateMidnightReset()" class="py-2 px-3 rounded-lg btn-stripe-secondary text-xs flex items-center gap-1" title="Test midnight reset sequence">
                 <svg class="w-3.5 h-3.5 text-slate-500 inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-                <span class="hidden sm:inline">Reset Day</span>
+                <span>Reset Day</span>
               </button>
             </div>
           </div>
@@ -628,10 +700,10 @@
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
             <!-- Card 1: Concentric SVG Rings (Solid colors, No Gradients) -->
-            <div class="lg:col-span-7 bg-white dark:bg-stripe-surface-dark border border-stripe-border dark:border-stripe-border-dark rounded-2xl p-6 shadow-stripe-sm flex flex-col items-center justify-between transition-colors">
-              <div class="w-full flex items-center justify-between mb-4">
+            <div class="lg:col-span-7 bg-white dark:bg-stripe-surface-dark border border-stripe-border dark:border-stripe-border-dark rounded-2xl p-5 sm:p-6 shadow-stripe-sm flex flex-col items-center justify-between transition-colors">
+              <div class="w-full flex items-center justify-between mb-4 flex-wrap gap-2">
                 <span class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider font-heading">Ring Completion</span>
-                <span id="ringStreakMultiplierBadge" class="text-xs mono font-bold px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                <span id="ringStreakMultiplierBadge" class="text-xs mono font-bold px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 shrink-0">
                   <span class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-stripe-indigo inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> 1.2× Streak Multiplier</span>
                 </span>
               </div>
@@ -667,27 +739,27 @@
               </div>
 
               <!-- Interactive Legend Pills -->
-              <div class="grid grid-cols-3 gap-3 w-full pt-4 mt-2 border-t border-slate-100 dark:border-slate-800">
-                <button onclick="setHabitFilter('VITALITY')" id="legendBtnVitality" class="p-2.5 rounded-xl border border-red-200 dark:border-red-900/60 bg-red-50/50 dark:bg-red-950/20 text-center transition hover:bg-red-50 dark:hover:bg-red-950/40">
-                  <div class="flex items-center justify-center gap-1.5 text-xs font-bold text-red-600 dark:text-red-400">
-                    <span class="w-2 h-2 rounded-full bg-red-500"></span>
-                    <span>Vitality</span>
+              <div class="grid grid-cols-3 gap-2 w-full pt-4 mt-2 border-t border-slate-100 dark:border-slate-800">
+                <button onclick="setHabitFilter('VITALITY')" id="legendBtnVitality" class="p-2 rounded-xl border border-red-200 dark:border-red-900/60 bg-red-50/50 dark:bg-red-950/20 text-center transition hover:bg-red-50 dark:hover:bg-red-950/40 min-w-0">
+                  <div class="flex items-center justify-center gap-1 text-[11px] font-bold text-red-600 dark:text-red-400">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0"></span>
+                    <span class="truncate">Vitality</span>
                   </div>
                   <span id="legendVitality" class="text-xs font-mono font-bold text-slate-900 dark:text-white block mt-0.5">2 / 2</span>
                 </button>
 
-                <button onclick="setHabitFilter('INTELLECT')" id="legendBtnIntellect" class="p-2.5 rounded-xl border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/50 dark:bg-emerald-950/20 text-center transition hover:bg-emerald-50 dark:hover:bg-emerald-950/40">
-                  <div class="flex items-center justify-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span>Intellect</span>
+                <button onclick="setHabitFilter('INTELLECT')" id="legendBtnIntellect" class="p-2 rounded-xl border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/50 dark:bg-emerald-950/20 text-center transition hover:bg-emerald-50 dark:hover:bg-emerald-950/40 min-w-0">
+                  <div class="flex items-center justify-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                    <span class="truncate">Intellect</span>
                   </div>
                   <span id="legendIntellect" class="text-xs font-mono font-bold text-slate-900 dark:text-white block mt-0.5">1 / 3</span>
                 </button>
 
-                <button onclick="setHabitFilter('DISCIPLINE')" id="legendBtnDiscipline" class="p-2.5 rounded-xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/50 dark:bg-blue-950/20 text-center transition hover:bg-blue-50 dark:hover:bg-blue-950/40">
-                  <div class="flex items-center justify-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400">
-                    <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                    <span>Discipline</span>
+                <button onclick="setHabitFilter('DISCIPLINE')" id="legendBtnDiscipline" class="p-2 rounded-xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/50 dark:bg-blue-950/20 text-center transition hover:bg-blue-50 dark:hover:bg-blue-950/40 min-w-0">
+                  <div class="flex items-center justify-center gap-1 text-[11px] font-bold text-blue-600 dark:text-blue-400">
+                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0"></span>
+                    <span class="truncate">Discipline</span>
                   </div>
                   <span id="legendDiscipline" class="text-xs font-mono font-bold text-slate-900 dark:text-white block mt-0.5">2 / 2</span>
                 </button>
@@ -698,36 +770,36 @@
             <div class="lg:col-span-5 flex flex-col gap-6">
               <!-- Weekly Momentum Card -->
               <div class="bg-white dark:bg-stripe-surface-dark border border-stripe-border dark:border-stripe-border-dark rounded-2xl p-5 shadow-stripe-sm">
-                <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                   <span class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider font-heading">Weekly Momentum</span>
-                  <span class="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold">100% On-Track</span>
+                  <span class="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold shrink-0">100% On-Track</span>
                 </div>
-                <div class="flex items-center justify-between gap-1 pt-1">
-                  <div class="flex flex-col items-center gap-1.5">
+                <div class="flex items-center justify-between gap-1 pt-1 overflow-x-auto">
+                  <div class="flex flex-col items-center gap-1.5 shrink-0">
                     <span class="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-bold"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
                     <span class="text-[10px] mono text-slate-500">Mon</span>
                   </div>
-                  <div class="flex flex-col items-center gap-1.5">
+                  <div class="flex flex-col items-center gap-1.5 shrink-0">
                     <span class="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-bold"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
                     <span class="text-[10px] mono text-slate-500">Tue</span>
                   </div>
-                  <div class="flex flex-col items-center gap-1.5">
+                  <div class="flex flex-col items-center gap-1.5 shrink-0">
                     <span class="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-bold"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
                     <span class="text-[10px] mono text-slate-500">Wed</span>
                   </div>
-                  <div class="flex flex-col items-center gap-1.5">
+                  <div class="flex flex-col items-center gap-1.5 shrink-0">
                     <span class="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-bold"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
                     <span class="text-[10px] mono text-slate-500">Thu</span>
                   </div>
-                  <div class="flex flex-col items-center gap-1.5">
+                  <div class="flex flex-col items-center gap-1.5 shrink-0">
                     <span class="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-bold"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
                     <span class="text-[10px] mono text-slate-500">Fri</span>
                   </div>
-                  <div class="flex flex-col items-center gap-1.5">
+                  <div class="flex flex-col items-center gap-1.5 shrink-0">
                     <span class="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-bold"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
                     <span class="text-[10px] mono text-slate-500">Sat</span>
                   </div>
-                  <div class="flex flex-col items-center gap-1.5">
+                  <div class="flex flex-col items-center gap-1.5 shrink-0">
                     <span class="w-7 h-7 rounded-full bg-stripe-indigo text-white flex items-center justify-center text-xs font-bold shadow-sm"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
                     <span class="text-[10px] mono font-bold text-stripe-indigo">Today</span>
                   </div>
@@ -738,12 +810,12 @@
               <div class="bg-white dark:bg-stripe-surface-dark border border-stripe-border dark:border-stripe-border-dark rounded-2xl p-5 shadow-stripe-sm flex-1 flex flex-col justify-between">
                 <div>
                   <span class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider font-heading">Progress Milestone</span>
-                  <div class="mt-3 flex items-baseline justify-between">
+                  <div class="mt-3 flex items-baseline justify-between flex-wrap gap-2">
                     <div>
                       <span class="text-2xl font-black mono text-slate-900 dark:text-white" id="homeTotalXpVal">4,850</span>
                       <span class="text-xs text-slate-500 mono ml-1">Total XP</span>
                     </div>
-                    <span class="text-xs font-mono font-bold text-stripe-indigo">Level 14 · Silver</span>
+                    <span class="text-xs font-mono font-bold text-stripe-indigo shrink-0">Level 14 · Silver</span>
                   </div>
                   <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden mt-3">
                     <div class="bg-stripe-indigo h-full rounded-full transition-all duration-500" style="width: 70%;"></div>
@@ -2772,25 +2844,25 @@
         const isDone = h.isCompleted;
 
         return `
-          <div onclick="toggleHabit('${h.id}')" class="p-4 rounded-xl bg-white dark:bg-stripe-surface-dark border ${isDone ? 'border-emerald-300 dark:border-emerald-800 bg-emerald-50/20 dark:bg-emerald-950/10' : 'border-stripe-border dark:border-stripe-border-dark hover:border-stripe-indigo'} shadow-stripe-sm flex items-center justify-between cursor-pointer transition select-none">
-            <div class="flex items-center gap-3.5">
-              <span class="w-10 h-10 rounded-lg flex items-center justify-center ${cat.bg} border ${cat.border} ${cat.text}">
+          <div onclick="toggleHabit('${h.id}')" class="p-3.5 sm:p-4 rounded-xl bg-white dark:bg-stripe-surface-dark border ${isDone ? 'border-emerald-300 dark:border-emerald-800 bg-emerald-50/20 dark:bg-emerald-950/10' : 'border-stripe-border dark:border-stripe-border-dark hover:border-stripe-indigo'} shadow-stripe-sm flex items-center justify-between cursor-pointer transition select-none gap-3 w-full">
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+              <span class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${cat.bg} border ${cat.border} ${cat.text}">
                 ${renderSvgIcon(h.icon, 'w-5 h-5')}
               </span>
-              <div>
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-semibold ${isDone ? 'line-through text-slate-400' : 'text-slate-900 dark:text-white'}">${h.title}</span>
-                  <span class="text-[10px] mono px-2 py-0.5 rounded font-medium ${cat.bg} ${cat.text}">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-sm font-semibold truncate ${isDone ? 'line-through text-slate-400' : 'text-slate-900 dark:text-white'}">${h.title}</span>
+                  <span class="text-[9px] mono px-1.5 py-0.2 rounded font-medium shrink-0 ${cat.bg} ${cat.text}">
                     ${h.category}
                   </span>
                 </div>
-                <span class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 block">${h.goal}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 block truncate">${h.goal}</span>
               </div>
             </div>
 
-            <div class="flex items-center gap-3">
-              <span class="text-xs font-mono font-bold text-amber-600 dark:text-amber-400">+${Math.floor(h.xpReward * 1.2)} XP</span>
-              <div class="w-5 h-5 rounded-md border flex items-center justify-center transition ${isDone ? 'bg-emerald-500 border-emerald-500 text-white font-bold text-xs' : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800'}">
+            <div class="flex items-center gap-2.5 shrink-0">
+              <span class="text-xs font-mono font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap">+${Math.floor(h.xpReward * 1.2)} XP</span>
+              <div class="w-5 h-5 rounded-md border flex items-center justify-center transition shrink-0 ${isDone ? 'bg-emerald-500 border-emerald-500 text-white font-bold text-xs' : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800'}">
                 ${isDone ? '<svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
               </div>
             </div>
@@ -3262,7 +3334,7 @@
 
       const match = appState.rooms.find(r => r.joinCode === clean);
       if (match) {
-        pEmoji.innerText = match.emoji;
+        pEmoji.innerHTML = renderSvgIcon(match.emoji, 'w-5 h-5 text-stripe-indigo');
         pName.innerText = match.name;
         pDesc.innerText = `${match.memberCount} / ${match.maxMembers} members · ${match.privacy}`;
         prev.classList.remove('hidden');
