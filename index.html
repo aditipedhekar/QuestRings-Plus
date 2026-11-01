@@ -232,6 +232,82 @@
     .dark ::-webkit-scrollbar-thumb {
       background: #334155;
     }
+
+    /* Mobile Viewport Simulator on Desktop */
+    @media (min-width: 768px) {
+      body.mobile-preview-active {
+        background-color: #0A0F1D !important;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+        background-size: 24px 24px;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+      body.mobile-preview-active #appShellRoot {
+        width: 390px !important;
+        max-width: 390px !important;
+        height: 844px !important;
+        max-height: calc(100vh - 48px) !important;
+        margin: 24px auto !important;
+        border-radius: 46px !important;
+        border: 8px solid #1E293B !important;
+        box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 2px #334155 !important;
+        overflow: hidden !important;
+        position: relative !important;
+        display: flex !important;
+        flex-direction: column !important;
+        background-color: #FFFFFF !important;
+      }
+      .dark body.mobile-preview-active #appShellRoot {
+        background-color: #0A0F1D !important;
+        border-color: #0F172A !important;
+        box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.95), 0 0 0 2px #1E293B !important;
+      }
+      body.mobile-preview-active #desktopSidebar {
+        display: none !important;
+      }
+      body.mobile-preview-active #mainViewportCanvas {
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+        position: relative !important;
+      }
+      body.mobile-preview-active header {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+      }
+      body.mobile-preview-active .hidden.md\:flex {
+        display: none !important;
+      }
+      body.mobile-preview-active .md\:hidden {
+        display: flex !important;
+      }
+      body.mobile-preview-active main {
+        flex: 1 1 0% !important;
+        overflow-y: auto !important;
+        padding-bottom: 74px !important;
+      }
+      body.mobile-preview-active #bottomBar {
+        display: flex !important;
+        position: absolute !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        z-index: 30 !important;
+        border-bottom-left-radius: 38px !important;
+        border-bottom-right-radius: 38px !important;
+      }
+      body.mobile-preview-active .mobile-phone-speaker {
+        display: block !important;
+      }
+      body.mobile-preview-active .mobile-phone-home-indicator {
+        display: block !important;
+      }
+      body.mobile-preview-active #mobilePreviewFloatingPill {
+        display: flex !important;
+      }
+    }
   </style>
 </head>
 <body class="bg-stripe-surface-subtle dark:bg-stripe-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
@@ -257,10 +333,23 @@
   <!-- Confetti Container -->
   <div id="confettiContainer" class="fixed inset-0 pointer-events-none z-50 overflow-hidden hidden"></div>
 
+  <!-- Floating Mobile Simulator Control Pill (Desktop) -->
+  <div id="mobilePreviewFloatingPill" class="hidden fixed top-4 right-4 z-50 items-center gap-2.5 bg-slate-900/90 dark:bg-slate-800/95 text-white backdrop-blur px-3.5 py-1.5 rounded-full shadow-stripe-lg border border-slate-700 text-xs font-mono select-none">
+    <span class="flex items-center gap-1.5 text-amber-400 font-semibold">
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+      Mobile Viewport (390×844)
+    </span>
+    <button onclick="setViewportMode('desktop')" class="px-2.5 py-1 bg-stripe-indigo hover:bg-stripe-indigo-hover text-white rounded-full text-[11px] font-sans font-bold transition">
+      Exit to Desktop
+    </button>
+  </div>
+
   <!-- ============================================================ -->
   <!-- RESPONSIVE APPLICATION SHELL -->
   <!-- ============================================================ -->
-  <div class="flex-1 flex flex-col md:flex-row min-h-screen">
+  <div id="appShellRoot" class="flex-1 flex flex-col md:flex-row min-h-screen transition-all duration-300">
+    <!-- Phone Speaker Notch for Mobile Viewport Simulator -->
+    <div class="mobile-phone-speaker hidden w-24 h-4 bg-slate-800 dark:bg-slate-900 rounded-full mx-auto my-2 shrink-0 z-30 pointer-events-none"></div>
 
     <!-- DESKTOP SIDEBAR NAVIGATION (1024px+) -->
     <aside id="desktopSidebar" class="hidden md:flex flex-col w-64 bg-white dark:bg-stripe-surface-dark border-r border-stripe-border dark:border-stripe-border-dark shrink-0 p-5 justify-between transition-colors duration-200">
@@ -337,7 +426,7 @@
     </aside>
 
     <!-- MAIN VIEWPORT CANVAS -->
-    <div class="flex-1 flex flex-col min-w-0">
+    <div id="mainViewportCanvas" class="flex-1 flex flex-col min-w-0">
 
       <!-- TOP APPLICATION HEADER BAR -->
       <header class="h-16 bg-white dark:bg-stripe-surface-dark border-b border-stripe-border dark:border-stripe-border-dark px-4 md:px-8 flex items-center justify-between shrink-0 z-20 transition-colors duration-200">
@@ -1098,31 +1187,35 @@
       </main>
 
       <!-- MOBILE PERSISTENT BOTTOM NAVIGATION (<1024px, ≤15% Viewport Cap) -->
-      <nav id="bottomBar" class="md:hidden fixed bottom-0 inset-x-0 bg-white/95 dark:bg-stripe-surface-dark/95 backdrop-blur-md border-t border-stripe-border dark:border-stripe-border-dark py-2 px-3 flex justify-around items-center z-30 transition-colors">
-        <button onclick="navTo('home')" id="bnav-home" class="flex flex-col items-center gap-1 text-stripe-indigo py-1">
-          <svg class="w-4 h-4 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/></svg>
-          <span class="text-[10px] font-semibold">Rings</span>
-        </button>
+      <nav id="bottomBar" class="md:hidden fixed bottom-0 inset-x-0 bg-white/95 dark:bg-stripe-surface-dark/95 backdrop-blur-md border-t border-stripe-border dark:border-stripe-border-dark py-2 px-3 flex flex-col items-center z-30 transition-colors">
+        <div class="w-full flex justify-around items-center">
+          <button onclick="navTo('home')" id="bnav-home" class="flex flex-col items-center gap-1 text-stripe-indigo py-1">
+            <svg class="w-4 h-4 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/></svg>
+            <span class="text-[10px] font-semibold">Rings</span>
+          </button>
 
-        <button onclick="navTo('tasks')" id="bnav-tasks" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-900 dark:hover:text-white py-1">
-          <svg class="w-4 h-4 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-          <span class="text-[10px] font-semibold">Tasks</span>
-        </button>
+          <button onclick="navTo('tasks')" id="bnav-tasks" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-900 dark:hover:text-white py-1">
+            <svg class="w-4 h-4 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            <span class="text-[10px] font-semibold">Tasks</span>
+          </button>
 
-        <button onclick="navTo('rooms')" id="bnav-rooms" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-900 dark:hover:text-white py-1">
-          <svg class="w-4 h-4 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-          <span class="text-[10px] font-semibold">Chambers</span>
-        </button>
+          <button onclick="navTo('rooms')" id="bnav-rooms" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-900 dark:hover:text-white py-1">
+            <svg class="w-4 h-4 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <span class="text-[10px] font-semibold">Chambers</span>
+          </button>
 
-        <button onclick="navTo('social')" id="bnav-social" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-900 dark:hover:text-white py-1">
-          <svg class="w-4 h-4 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg>
-          <span class="text-[10px] font-semibold">Social</span>
-        </button>
+          <button onclick="navTo('social')" id="bnav-social" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-900 dark:hover:text-white py-1">
+            <svg class="w-4 h-4 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg>
+            <span class="text-[10px] font-semibold">Social</span>
+          </button>
 
-        <button onclick="navTo('profile')" id="bnav-profile" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-900 dark:hover:text-white py-1">
-          <svg class="w-4 h-4 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          <span class="text-[10px] font-semibold">Profile</span>
-        </button>
+          <button onclick="navTo('profile')" id="bnav-profile" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-900 dark:hover:text-white py-1">
+            <svg class="w-4 h-4 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="text-[10px] font-semibold">Profile</span>
+          </button>
+        </div>
+        <!-- Phone Home Indicator Bar -->
+        <div class="mobile-phone-home-indicator hidden w-28 h-1 bg-slate-400 dark:bg-slate-600 rounded-full mt-1.5 shrink-0 pointer-events-none"></div>
       </nav>
 
     </div>
@@ -1162,7 +1255,27 @@
         </div>
       </div>
 
-      <!-- Experience Toggles -->
+      <!-- Desktop Viewport Simulator Mode -->
+      <div>
+        <label class="block text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider font-mono mb-2">Desktop Viewport Mode</label>
+        <div class="grid grid-cols-2 gap-3">
+          <button type="button" onclick="setViewportMode('desktop')" id="viewportBtnDesktop" class="p-3 rounded-xl border-2 border-stripe-indigo bg-indigo-50/40 dark:bg-indigo-950/40 text-left flex items-center gap-3 transition">
+            <svg class="w-5 h-5 text-stripe-indigo inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            <div>
+              <span class="text-xs font-bold text-slate-900 dark:text-white block">Desktop Wide</span>
+              <span class="text-[10px] text-slate-500">Full workspace grid</span>
+            </div>
+          </button>
+          <button type="button" onclick="setViewportMode('mobile')" id="viewportBtnMobile" class="p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-left flex items-center gap-3 transition">
+            <svg class="w-5 h-5 text-slate-500 inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            <div>
+              <span class="text-xs font-bold text-slate-900 dark:text-white block">Mobile Device</span>
+              <span class="text-[10px] text-slate-500">390×844 phone frame</span>
+            </div>
+          </button>
+        </div>
+        <span class="text-[11px] text-slate-500 mt-1.5 block">Preview the phone navigation bar, compact rings, and mobile layout on desktop.</span>
+      </div>
       <div class="space-y-3 pt-1">
         <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700">
           <div>
@@ -1691,6 +1804,7 @@
         avatarColor: '#635BFF'
       },
       currentScreen: 'home',
+      viewportMode: 'desktop',
       activeRoomId: 'room_1',
       activeDetailTab: 'assignments', // 'assignments' | 'leaderboard' | 'members' | 'verify'
       activeAssignmentId: 'asg_1',
@@ -2162,6 +2276,43 @@
 
     function closeSettingsModal() {
       document.getElementById('settingsModal').classList.add('hidden');
+    }
+
+    // ==========================================
+    // VIEWPORT SIMULATOR ENGINE (Mobile on Desktop)
+    // ==========================================
+    function initViewportMode() {
+      const saved = localStorage.getItem('questrings_viewport_mode') || 'desktop';
+      setViewportMode(saved, false);
+    }
+
+    function setViewportMode(mode, save = true) {
+      appState.viewportMode = mode;
+      const dBtn = document.getElementById('viewportBtnDesktop');
+      const mBtn = document.getElementById('viewportBtnMobile');
+      const pill = document.getElementById('mobilePreviewFloatingPill');
+
+      if (mode === 'mobile') {
+        document.body.classList.add('mobile-preview-active');
+        if (dBtn && mBtn) {
+          mBtn.className = "p-3 rounded-xl border-2 border-stripe-indigo bg-indigo-50/40 dark:bg-indigo-950/40 text-left flex items-center gap-3 transition";
+          dBtn.className = "p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-left flex items-center gap-3 transition";
+        }
+        if (pill) pill.classList.remove('hidden');
+      } else {
+        document.body.classList.remove('mobile-preview-active');
+        if (dBtn && mBtn) {
+          dBtn.className = "p-3 rounded-xl border-2 border-stripe-indigo bg-indigo-50/40 dark:bg-indigo-950/40 text-left flex items-center gap-3 transition";
+          mBtn.className = "p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-left flex items-center gap-3 transition";
+        }
+        if (pill) pill.classList.add('hidden');
+      }
+
+      if (save) {
+        localStorage.setItem('questrings_viewport_mode', mode);
+        triggerHaptic('heavy');
+        showToast(mode === 'mobile' ? 'Mobile Viewport Preview active' : 'Desktop Wide view restored');
+      }
     }
 
     function toggleHapticPref(enabled) {
@@ -4005,8 +4156,9 @@
       }, 1400);
     }
 
-    // Initialize Theme and Entry Screen
+    // Initialize Theme, Viewport Mode, and Entry Screen
     initTheme();
+    initViewportMode();
     navTo('home');
   </script>
 </body>
