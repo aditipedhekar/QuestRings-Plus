@@ -1354,7 +1354,7 @@
             <span class="text-xs font-bold text-slate-900 dark:text-white block">Haptic Feedback HUD</span>
             <span class="text-[11px] text-slate-500">Simulate physical tap response on actions</span>
           </div>
-          <input type="checkbox" checked onchange="toggleHapticPref(this.checked)" class="rounded text-stripe-indigo focus:ring-0">
+          <input id="toggleHapticCheckbox" type="checkbox" checked onchange="toggleHapticPref(this.checked)" class="rounded text-stripe-indigo focus:ring-0">
         </div>
 
         <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700">
@@ -2300,6 +2300,81 @@
     };
 
     // ==========================================
+    // LOCALSTORAGE PERSISTENCE ENGINE
+    // ==========================================
+    function saveAppState() {
+      try {
+        const payload = {
+          user: appState.user,
+          userStats: appState.userStats,
+          habits: appState.habits,
+          tasks: appState.tasks,
+          rooms: appState.rooms,
+          assignments: appState.assignments,
+          completions: appState.completions,
+          pendingVerifications: appState.pendingVerifications,
+          roomMembers: appState.roomMembers,
+          xpEvents: appState.xpEvents,
+          friends: appState.friends,
+          friendRequests: appState.friendRequests,
+          feedEvents: appState.feedEvents,
+          leaderboardUsers: appState.leaderboardUsers,
+          enableHaptics: appState.enableHaptics,
+          currentScreen: appState.currentScreen,
+          activeRoomId: appState.activeRoomId,
+          activeDetailTab: appState.activeDetailTab,
+          activeAssignmentId: appState.activeAssignmentId,
+          activeHabitCategory: appState.activeHabitCategory,
+          taskViewMode: appState.taskViewMode,
+          taskFilter: appState.taskFilter,
+          activeRoomsTab: appState.activeRoomsTab,
+          activeSocialTab: appState.activeSocialTab,
+          activeXpFilter: appState.activeXpFilter,
+          viewportMode: appState.viewportMode
+        };
+        localStorage.setItem('questrings_state_v1', JSON.stringify(payload));
+      } catch (err) {
+        console.warn('Could not save state to localStorage:', err);
+      }
+    }
+
+    function loadAppState() {
+      try {
+        const stored = localStorage.getItem('questrings_state_v1');
+        if (!stored) return;
+        const data = JSON.parse(stored);
+        if (data.user) Object.assign(appState.user, data.user);
+        if (data.userStats) Object.assign(appState.userStats, data.userStats);
+        if (Array.isArray(data.habits)) appState.habits = data.habits;
+        if (Array.isArray(data.tasks)) appState.tasks = data.tasks;
+        if (Array.isArray(data.rooms)) appState.rooms = data.rooms;
+        if (Array.isArray(data.assignments)) appState.assignments = data.assignments;
+        if (Array.isArray(data.completions)) appState.completions = data.completions;
+        if (Array.isArray(data.pendingVerifications)) appState.pendingVerifications = data.pendingVerifications;
+        if (Array.isArray(data.roomMembers)) appState.roomMembers = data.roomMembers;
+        if (Array.isArray(data.xpEvents)) appState.xpEvents = data.xpEvents;
+        if (Array.isArray(data.friends)) appState.friends = data.friends;
+        if (Array.isArray(data.friendRequests)) appState.friendRequests = data.friendRequests;
+        if (Array.isArray(data.feedEvents)) appState.feedEvents = data.feedEvents;
+        if (Array.isArray(data.leaderboardUsers)) appState.leaderboardUsers = data.leaderboardUsers;
+        if (typeof data.enableHaptics === 'boolean') appState.enableHaptics = data.enableHaptics;
+        if (data.currentScreen) appState.currentScreen = data.currentScreen;
+        if (data.activeRoomId) appState.activeRoomId = data.activeRoomId;
+        if (data.activeDetailTab) appState.activeDetailTab = data.activeDetailTab;
+        if (data.activeAssignmentId) appState.activeAssignmentId = data.activeAssignmentId;
+        if (data.activeHabitCategory) appState.activeHabitCategory = data.activeHabitCategory;
+        if (data.taskViewMode) appState.taskViewMode = data.taskViewMode;
+        if (data.taskFilter) appState.taskFilter = data.taskFilter;
+        if (data.activeRoomsTab) appState.activeRoomsTab = data.activeRoomsTab;
+        if (data.activeSocialTab) appState.activeSocialTab = data.activeSocialTab;
+        if (data.activeXpFilter) appState.activeXpFilter = data.activeXpFilter;
+        if (data.viewportMode) appState.viewportMode = data.viewportMode;
+      } catch (err) {
+        console.warn('Could not parse persisted state from localStorage:', err);
+      }
+    }
+
+    // ==========================================
     // THEME CONTROLLER (LIGHT/DARK PERSISTENCE)
     // ==========================================
     function initTheme() {
@@ -2333,6 +2408,7 @@
 
       if (save) {
         localStorage.setItem('questrings_theme', mode);
+        saveAppState();
         showToast(`Theme switched to Stripe ${mode.charAt(0).toUpperCase() + mode.slice(1)} Mode`);
       }
     }
@@ -2382,6 +2458,7 @@
 
       if (save) {
         localStorage.setItem('questrings_viewport_mode', mode);
+        saveAppState();
         triggerHaptic('heavy');
         showToast(mode === 'mobile' ? 'Mobile Viewport Preview active' : 'Desktop Wide view restored');
       }
@@ -2389,6 +2466,7 @@
 
     function toggleHapticPref(enabled) {
       appState.enableHaptics = enabled;
+      saveAppState();
       showToast(enabled ? "Haptic indicator enabled" : "Haptic indicator disabled");
     }
 
@@ -2468,6 +2546,7 @@
     function navTo(screenId) {
       triggerHaptic('light');
       appState.currentScreen = screenId;
+      saveAppState();
 
       const screens = [
         'splash', 'login', 'profile-setup', 'home', 'tasks',
@@ -2643,6 +2722,7 @@
 
       errBanner.classList.add('hidden');
       appState.user.email = email;
+      saveAppState();
 
       if (appState.auth.mode === 'REGISTER') {
         triggerHaptic('heavy');
@@ -2659,6 +2739,7 @@
       showToast("Signed in via Google Authentication");
       appState.user.email = "google.hero@questrings.app";
       appState.user.displayName = "TitaniumStriker";
+      saveAppState();
       navTo('home');
     }
 
@@ -2681,6 +2762,7 @@
       const name = document.getElementById('inputSetupDisplayName').value.trim() || "Adventurer";
       appState.user.displayName = name;
       appState.user.avatarColor = appState.auth.setupAvatarColor;
+      saveAppState();
       triggerHaptic('heavy');
       showToast(`Welcome, ${name}!`);
       navTo('home');
@@ -2705,6 +2787,7 @@
       });
 
       renderHome();
+      saveAppState();
     }
 
     function toggleHabit(habitId) {
@@ -2725,6 +2808,7 @@
       }
 
       renderHome();
+      saveAppState();
 
       if (appState.habits.every(item => item.isCompleted)) {
         triggerHaptic('heavy');
@@ -2934,6 +3018,7 @@
       triggerHaptic('heavy');
       showToast(`Added habit: ${title}!`);
       renderHome();
+      saveAppState();
     }
 
     function simulateMidnightReset() {
@@ -2943,6 +3028,7 @@
       appState.userStats.currentStreak += 1;
       showToast("Day renewed! Habits reset & streak incremented!", "sync");
       renderHome();
+      saveAppState();
     }
 
     // ==========================================
@@ -2950,6 +3036,7 @@
     // ==========================================
     function setTaskViewMode(mode) {
       appState.taskViewMode = mode;
+      saveAppState();
       const bList = document.getElementById('taskViewList');
       const bCal = document.getElementById('taskViewCalendar');
       const filtersRow = document.getElementById('taskStatusFiltersRow');
@@ -2968,6 +3055,7 @@
 
     function setTaskFilter(filter) {
       appState.taskFilter = filter;
+      saveAppState();
       ['ALL', 'ACTIVE', 'GRACE_PERIOD', 'UPCOMING', 'COMPLETED'].forEach(f => {
         const btn = document.getElementById(`taskFilter-${f}`);
         if (btn) {
@@ -2996,6 +3084,7 @@
         triggerHaptic('light');
       }
       renderTasks();
+      saveAppState();
     }
 
     function formatTaskCountdown(dueAt) {
@@ -3167,6 +3256,7 @@
       triggerHaptic('heavy');
       showToast(`Quest Scheduled: ${title}!`);
       renderTasks();
+      saveAppState();
     }
 
     setInterval(() => {
@@ -3264,6 +3354,7 @@
       triggerHaptic('heavy');
       showToast(`Joined ${room.name}!`);
       renderRooms();
+      saveAppState();
     }
 
     function openCreateRoomModal() {
@@ -3311,6 +3402,7 @@
       triggerHaptic('heavy');
       showToast(`Chamber forged: ${name} (Code: ${code})!`);
       renderRooms();
+      saveAppState();
     }
 
     function openJoinRoomModal() {
@@ -3357,6 +3449,7 @@
       triggerHaptic('heavy');
       showToast(`Joined ${match.name}!`);
       renderRooms();
+      saveAppState();
     }
 
     function openRoomShare(roomId) {
@@ -3377,6 +3470,7 @@
     // ==========================================
     function setDetailTab(tab) {
       appState.activeDetailTab = tab;
+      saveAppState();
       ['assignments', 'leaderboard', 'members', 'verify'].forEach(t => {
         const btn = document.getElementById(`detailTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
         if (btn) {
@@ -3562,12 +3656,14 @@
       appState.pendingVerifications = appState.pendingVerifications.filter(x => x.id !== vId);
       showToast("Submission approved!");
       renderRoomDetail();
+      saveAppState();
     }
 
     function rejectVerification(vId) {
       appState.pendingVerifications = appState.pendingVerifications.filter(x => x.id !== vId);
       showToast("Submission rejected");
       renderRoomDetail();
+      saveAppState();
     }
 
     // ==========================================
@@ -3697,6 +3793,7 @@
       triggerConfetti();
       showToast(`Quest Completed! Rank #${rank} (+${xp} XP)`, "trophy");
       renderAssignmentDetail();
+      saveAppState();
     }
 
     function renderAssignmentLeaderboardList(asgId) {
@@ -3798,6 +3895,7 @@
       closeCreateAssignmentModal();
       showToast(`Quest posted: ${title}!`);
       renderRoomDetail();
+      saveAppState();
     }
 
     // ==========================================
@@ -3831,6 +3929,7 @@
 
     function setXpFilter(filter) {
       appState.activeXpFilter = filter;
+      saveAppState();
       ['ALL', 'HABITS', 'TASKS', 'ROOMS'].forEach(f => {
         const btn = document.getElementById(`xpFilter-${f}`);
         if (btn) {
